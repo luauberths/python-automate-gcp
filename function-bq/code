@@ -1,0 +1,33 @@
+from google.cloud import storage
+from google.cloud import bigquery
+
+def input_bq (event, context):
+
+    file = event
+
+    client = bigquery.Client()
+    
+    job_config = bigquery.LoadJobConfig(
+    schema=[
+        bigquery.SchemaField("column", "type")
+    ],
+    source_format=bigquery.SourceFormat.CSV,
+    skip_leading_rows=1,
+    field_delimiter= ',', 
+    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE 
+    )
+
+    table_id = "table-bq"
+
+    uri = "bucket-uri"
+
+    load_job = client.load_table_from_uri(
+    uri, table_id, job_config=job_config
+    )
+
+    load_job.result()  
+    
+    destination_table = client.get_table(table_id)
+
+    print("Loaded {} rows.".format(destination_table.num_rows))
+    return f'check the results in the logs'
