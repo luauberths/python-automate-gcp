@@ -1,0 +1,24 @@
+function trigger_function(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sheetname');
+  var range = sheet.getRange('range');
+  var value = range.getValue();
+  var e = {range: range, value: value};
+
+  if (e && e.range) {
+    var data = e.range.getValue();
+    var params = {
+      'data': data
+    };
+    var response = UrlFetchApp.fetch('url', {
+      'method': 'post',
+      'payload': JSON.stringify(e),
+      'contentType': 'application/json',
+      'muteHttpExceptions': true
+    });
+
+    Logger.log(response.getContentText());
+  } else {
+    Logger.log("O parâmetro 'e' é nulo ou não possui a propriedade 'range'. Verifique se a função está sendo chamada corretamente.");
+    // Logger.log(e)
+  }
+}
