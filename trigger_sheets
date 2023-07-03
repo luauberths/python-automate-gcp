@@ -1,6 +1,6 @@
 function trigger_function(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('nomedaplanilha');
-  var range = sheet.getRange('intervalodecélulas');
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sheetname');
+  var range = sheet.getRange('range');
   var value = range.getValue();
   var e = {range: range, value: value};
 
@@ -9,7 +9,7 @@ function trigger_function(e) {
     var params = {
       'data': data
     };
-    var response = UrlFetchApp.fetch('urldegatilhodafunctionhttp', {
+    var response = UrlFetchApp.fetch('urlfunction', {
       'method': 'post',
       'payload': JSON.stringify(e),
       'contentType': 'application/json',
