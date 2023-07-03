@@ -1,0 +1,53 @@
+import google.auth # Biblioteca de autenticação
+import gspread # Biblioteca google sheets
+import csv # Biblioteca de csv
+from google.cloud import storage # Biblioteca do bucket
+
+def input_gcs(request):
+    """Responds to any HTTP request.
+    Args:
+        request (flask.Request): HTTP request object.
+    Returns:
+        The response text or any set of values that can be turned into a
+        Response object using
+        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
+    """
+    # Atribuindo os escopos e autorizando via credencial
+    # Atribuindo os escopos e autorizando via credencial
+    DEFAULT_SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive']
+    creds, _ = google.auth.default(scopes=DEFAULT_SCOPES)
+
+    gc = gspread.authorize(creds)
+
+    # Abrir a planilha
+    sh = gc.open_by_url('sheet-url')
+
+    # Selecionar a primeira aba
+    worksheet = sh.get_worksheet(0)
+
+    # Obter todas as células da planilha
+    cells = worksheet.get_all_values()
+
+    # Abrir um arquivo csv para escrita
+    file_csv = open('/tmp/arquivo.csv', 'w', newline='', encoding = 'utf-8-sig')  
+        
+    writer = csv.writer(file_csv)
+    writer.writerows(cells)
+
+    # Fechar o arquivo
+    file_csv.close()
+
+    # Abrir o arquivo em modo de leitura
+    file_csv = open('/tmp/arquivo.csv', 'rb')
+
+    # Faz a conexão com o storage
+    storage_client = storage.Client()
+
+    bucket = storage_client.bucket('bucket-name') 
+    blob = bucket.blob('bucket-path')
+    blob.upload_from_file(file_csv, content_type = 'text/csv')
+
+    # Fechar o arquivo
+    file_csv.close()
+    
+    return ("Arquivo enviado com sucesso para o Cloud Storage!", 200)
